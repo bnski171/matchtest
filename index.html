@@ -54,6 +54,12 @@
         .login-container button:hover {
             background-color: #ff85c1;
         }
+        #debugInfo {
+            margin-top: 20px;
+            font-size: 12px;
+            text-align: left;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -64,31 +70,52 @@
         </div>
         <p>Добро пожаловать, <span id="userName">Гость</span>!</p>
         <button id="continueButton">Продолжить</button>
+        <div id="debugInfo"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let tg = window.Telegram.WebApp;
+            let debugInfo = document.getElementById('debugInfo');
+
+            function log(message) {
+                debugInfo.innerHTML += message + '<br>';
+                console.log(message);
+            }
+
+            log('Telegram Web App initialized');
+
             tg.expand();
 
             let userPhoto = document.getElementById('userPhoto');
             let userName = document.getElementById('userName');
             let continueButton = document.getElementById('continueButton');
 
-            // Получаем имя пользователя из Telegram
+            log('Telegram initData: ' + tg.initData);
+            log('Telegram initDataUnsafe: ' + JSON.stringify(tg.initDataUnsafe));
+
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                log('User data available');
                 userName.textContent = tg.initDataUnsafe.user.first_name || 'Гость';
+                log('User name set to: ' + userName.textContent);
+
+                if (tg.initDataUnsafe.user.photo_url) {
+                    userPhoto.src = tg.initDataUnsafe.user.photo_url;
+                    log('User photo set to: ' + tg.initDataUnsafe.user.photo_url);
+                } else {
+                    log('User photo not available');
+                }
+            } else {
+                log('User data not available');
             }
 
-            // Получаем фото пользователя из Telegram
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
-                userPhoto.src = tg.initDataUnsafe.user.photo_url;
-            }
-
-            // Обработчик для кнопки "Продолжить"
             continueButton.addEventListener('click', function() {
+                log('Continue button clicked');
                 tg.close();
             });
+
+            // Запрос данных пользователя
+            tg.ready();
         });
     </script>
 </body>
