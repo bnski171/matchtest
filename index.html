@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poputka Match - Вход</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,15 +29,17 @@
             color: #ff69b4;
             margin-bottom: 20px;
         }
-        .login-container input[type="text"],
-        .login-container input[type="password"] {
+        .user-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+        .user-photo img {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            background-color: #333;
-            color: #fff;
+            height: 100%;
+            object-fit: cover;
         }
         .login-container button {
             background-color: #ff69b4;
@@ -46,31 +49,47 @@
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
+            margin-top: 20px;
         }
         .login-container button:hover {
             background-color: #ff85c1;
-        }
-        .login-container a {
-            color: #ff69b4;
-            text-decoration: none;
-            display: block;
-            margin-top: 10px;
-        }
-        .login-container a:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h1>Poputka Match</h1>
-        <form>
-            <input type="text" placeholder="Логин" required>
-            <input type="password" placeholder="Пароль" required>
-            <button type="submit">Войти</button>
-        </form>
-        <a href="#">Забыли пароль?</a>
-        <a href="#">Регистрация</a>
+        <div class="user-photo">
+            <img id="userPhoto" src="/api/placeholder/100/100" alt="User Photo">
+        </div>
+        <p>Добро пожаловать, <span id="userName">Гость</span>!</p>
+        <button id="continueButton">Продолжить</button>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let tg = window.Telegram.WebApp;
+            tg.expand();
+
+            let userPhoto = document.getElementById('userPhoto');
+            let userName = document.getElementById('userName');
+            let continueButton = document.getElementById('continueButton');
+
+            // Получаем имя пользователя из Telegram
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userName.textContent = tg.initDataUnsafe.user.first_name || 'Гость';
+            }
+
+            // Получаем фото пользователя из Telegram
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
+                userPhoto.src = tg.initDataUnsafe.user.photo_url;
+            }
+
+            // Обработчик для кнопки "Продолжить"
+            continueButton.addEventListener('click', function() {
+                tg.close();
+            });
+        });
+    </script>
 </body>
 </html>
